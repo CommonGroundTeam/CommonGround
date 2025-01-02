@@ -35,7 +35,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="chat"
+        name="Chat"
         options={{
           title: "Chat",
           tabBarIcon: ({ color }) => (
@@ -49,16 +49,6 @@ export default function TabLayout() {
           title: "Teams",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="person.3.fill" color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="calendar"
-        options={{
-          title: "Calendar",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="calendar.fill" color={color} />
           ),
         }}
       />

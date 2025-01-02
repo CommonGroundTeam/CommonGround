@@ -6,9 +6,10 @@ import { Image } from "react-native";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link } from "expo-router";
-import { FIREBASE_AUTH } from "../../firebaseConfig";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { KeyboardAvoidingView } from "react-native";
+import { doc, setDoc } from "firebase/firestore";
+import CustomKeyboardView from "../../components/CustomKeyboardView";
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -27,11 +28,17 @@ const SignUp = () => {
         form.email,
         form.password
       );
+      username = form.username;
+
+      await setDoc(doc(FIRESTORE_DB, "users", response?.user?.uid), {
+        username,
+        userId: response?.user?.uid,
+      });
       console.log(response);
-      alert("Check your email!");
     } catch (error) {
-      console.log(error);
-      alert("Registration failed: " + error.message);
+      let msg = error.message;
+      if (msg.includes("(auth/invalid-email)")) msg = "Invalid email";
+      alert(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -39,7 +46,7 @@ const SignUp = () => {
 
   return (
     <SafeAreaView className="bg-background h-full">
-      <KeyboardAvoidingView behavior="padding">
+      <CustomKeyboardView inChat={true}>
         <ScrollView>
           <View className="w-full justify-center min-h-[85vh] px-4 my-6">
             <View className="flex-row items-center">
@@ -97,7 +104,7 @@ const SignUp = () => {
             </View>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </CustomKeyboardView>
     </SafeAreaView>
   );
 };

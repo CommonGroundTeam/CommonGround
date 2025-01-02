@@ -8,7 +8,7 @@ import CustomButton from "../../components/CustomButton";
 import { Link } from "expo-router";
 import { FIREBASE_AUTH } from "../../firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { KeyboardAvoidingView } from "react-native";
+import CustomKeyboardView from "../../components/CustomKeyboardView";
 
 const SignIn = () => {
   const [form, setForm] = useState({
@@ -21,13 +21,7 @@ const SignIn = () => {
   const signInWithFirebase = async () => {
     setIsSubmitting(true);
     try {
-      const response = await signInWithEmailAndPassword(
-        auth,
-        form.email,
-        form.password
-      );
-      console.log(response);
-      alert("Sign in successful");
+      await signInWithEmailAndPassword(auth, form.email, form.password);
     } catch (error) {
       console.log(error);
       alert("Sign in failed: " + error.message);
@@ -38,7 +32,7 @@ const SignIn = () => {
 
   return (
     <SafeAreaView className="bg-background h-full">
-      <KeyboardAvoidingView behavior="padding">
+      <CustomKeyboardView inChat={true}>
         <ScrollView>
           <View className="w-full justify-center min-h-[85vh] px-4 my-6">
             <View className="flex-row items-center">
@@ -89,7 +83,7 @@ const SignIn = () => {
             </View>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </CustomKeyboardView>
     </SafeAreaView>
   );
 };

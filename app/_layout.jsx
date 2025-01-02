@@ -1,46 +1,63 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import "../global.css";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+import { MenuProvider } from "react-native-popup-menu";
+import { AuthContextProvider, useAuth } from "../context/AuthContext";
+import { router } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+const MainLayout = () => {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
+  const { isAuthenticated } = useAuth();
+  const segments = useSegments();
+
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    async function handleNavigation() {
+      const isInApp = segments[0] == "(tabs)";
+
+      if (typeof isAuthenticated == " undefined") {
+        return;
+      } else if (isAuthenticated && !isInApp) {
+        await router.replace("home");
+      } else {
+        await router.replace("new-user");
+      }
     }
-  }, [loaded]);
+
+    if (loaded && isAuthenticated !== undefined) {
+      SplashScreen.hideAsync();
+      handleNavigation();
+    }
+  }, [loaded, isAuthenticated]);
 
   if (!loaded) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="/search/[query]" options={{ headerShown: false }} /> */}
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      {/* <Stack.Screen name="/search/[query]" options={{ headerShown: false }} /> */}
+    </Stack>
+  );
+};
+export default function RootLayout() {
+  return (
+    <AuthContextProvider>
+      <GestureHandlerRootView>
+        <MenuProvider>
+          <MainLayout />
+        </MenuProvider>
+      </GestureHandlerRootView>
+    </AuthContextProvider>
   );
 }

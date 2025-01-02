@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "commonground",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "sdkVersion": "52.0.0",
     "ios": {
