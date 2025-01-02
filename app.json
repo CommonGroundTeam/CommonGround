@@ -9,6 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "sdkVersion": "52.0.0",
+    "platforms": ["ios", "android"],  // Add this line to enable both iOS and Android
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.CommondGround.CommonGround",

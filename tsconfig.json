@@ -14,7 +14,7 @@
     "nativewind-env.d.ts",
     "app/index.jsx",
     "app/+not-found.jsx",
-    "app/(tabs)/profile.jsx",
+    "app/(tabs)/Profile/ProfilePage.jsx",
     "app/(tabs)/teams.jsx",
     "app/(tabs)/settings.jsx",
     "app/(tabs)/index.jsx",
