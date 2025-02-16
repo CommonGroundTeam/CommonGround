@@ -209,3 +209,30 @@ export const getProfilePictureByUserId = async (userId) => {
     throw new Error("Could not retrieve profile picture.");
   }
 };
+
+export const addTeamToUser = async (userId, teamId) => {
+  try {
+    const userDocRef = doc(usersCollection, userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      throw new Error("User not found.");
+    }
+
+    const userData = userDoc.data();
+    const updatedTeams = userData.teams
+      ? [...userData.teams, teamId]
+      : [teamId];
+
+    await setDoc(
+      userDocRef,
+      { teams: updatedTeams, updatedAt: Timestamp.now() },
+      { merge: true }
+    );
+
+    console.log(`Team ${teamId} added to user ${userId}`);
+  } catch (error) {
+    console.error("Error adding team to user:", error);
+    throw error;
+  }
+};
