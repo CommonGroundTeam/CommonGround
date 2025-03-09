@@ -155,8 +155,8 @@ const TeamDetails = () => {
             Team Details
           </Text>
 
-          <Text className="text-sm font-bold text-gray-700">Leader</Text>
-          <Text className="text-base text-gray-700 mb-3">@{leaderName}</Text>
+          <Text className="text-m font-bold text-gray-700">Leader</Text>
+          <Text className="text-sm text-gray-700 mb-3">@{leaderName}</Text>
 
           <Text className="text-sm font-bold text-gray-700">
             Privacy Setting

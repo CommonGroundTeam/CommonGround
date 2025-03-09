@@ -22,7 +22,7 @@ const ViewTeams = () => {
     if (user) {
       loadTeams();
     }
-  }, [user]); // Reload when user changes
+  }, [user]);
 
   const loadTeams = async () => {
     setLoading(true);
@@ -85,7 +85,6 @@ const ViewTeams = () => {
 
   return (
     <View className="flex-1 bg-white pb-20">
-      {" "}
       {/* Added padding-bottom */}
       <ViewTeamsHeader />
       <Text className="text-2xl font-bold my-5 mx-5">Your Teams</Text>

@@ -4,7 +4,6 @@ import {
   setDoc,
   Timestamp,
   query,
-  where,
   getDoc,
   getDocs,
   orderBy,
@@ -234,5 +233,34 @@ export const addTeamToUser = async (userId, teamId) => {
   } catch (error) {
     console.error("Error adding team to user:", error);
     throw error;
+  }
+};
+
+/**
+ * Fetches the interests of the currently authenticated user from Firestore.
+ * @returns {Promise<Array>} - List of user's interests or an empty array if none.
+ */
+export const fetchUserInterests = async () => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error("User not authenticated.");
+    }
+
+    const userDocRef = doc(collection(FIRESTORE_DB, "users"), user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.interests || [];
+    } else {
+      console.warn("User document not found.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching user interests:", error);
+    return [];
   }
 };
