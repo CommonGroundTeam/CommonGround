@@ -34,14 +34,6 @@ export const checkIfTeamExists = async (teamName) => {
  * @param {string} category - Team category.
  * @param {string} details - Team description.
  * @param {Object} preferences - Other team preferences.
- * @returns {Promise<string>} - The created team's ID.
- */
-/**
- * Creates a new team in Firebase and returns the team ID.
- * @param {string} teamName - Name of the team.
- * @param {string} category - Team category.
- * @param {string} details - Team description.
- * @param {Object} preferences - Other team preferences.
  * @param {string} userId - The user ID of the creator (Leader).
  * @returns {Promise<string>} - The created team's ID.
  */
@@ -125,5 +117,33 @@ export const fetchTeamDetailsFromFirebase = async (teamId) => {
   } catch (error) {
     console.error("Error fetching team details from Firebase:", error);
     return null;
+  }
+};
+
+/**
+ * Fetches teams based on a partial name match (case-insensitive).
+ * @param {string} teamName - Partial or full team name to search.
+ * @returns {Promise<Array>} - Array of matching teams.
+ */
+export const fetchTeamsByName = async (teamName) => {
+  try {
+    if (!teamName) return [];
+
+    const lowerCaseTeamName = teamName.toLowerCase(); // Convert input to lowercase
+    const teamsRef = collection(FIRESTORE_DB, "team");
+    const q = query(teamsRef);
+    const querySnapshot = await getDocs(q);
+
+    const teams = querySnapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .filter((team) => team.name.toLowerCase().includes(lowerCaseTeamName)); // Filter results based on lowercase comparison
+
+    return teams;
+  } catch (error) {
+    console.error("Error fetching teams by name:", error);
+    return [];
   }
 };
