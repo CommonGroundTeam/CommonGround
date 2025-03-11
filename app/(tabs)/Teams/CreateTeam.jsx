@@ -19,7 +19,7 @@ import {
   checkIfTeamExists,
   addTeamToUser,
 } from "@/service/TeamServiceFirebase";
-import { addUserToTeam } from "@/service/TeamServiceSupabase";
+import { addUserToTeam } from "@/service/UserTeamServiceSupabase";
 import { useAuth } from "@/context/AuthContext";
 import BackArrowHeader from "../../../components/BackArrowHeader";
 

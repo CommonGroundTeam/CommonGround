@@ -10,10 +10,9 @@ import {
   startAt,
   endAt,
 } from "firebase/firestore";
-import { FIRESTORE_DB } from "../firebaseConfig.js"; // Your Firestore configuration
+import { FIRESTORE_DB } from "../firebaseConfig.js";
 import { getAuth } from "firebase/auth";
 
-// Define the users collection
 const usersCollection = collection(FIRESTORE_DB, "users");
 const interestsCollection = collection(FIRESTORE_DB, "interests");
 

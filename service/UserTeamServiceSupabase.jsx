@@ -15,12 +15,10 @@ export const fetchUserTeams = async () => {
       throw new Error("User not authenticated.");
     }
 
-    // console.log("Fetching teams for user ID:", user.uid);
-
     const { data, error } = await supabase
       .from("user_teams")
-      .select("teamid")
-      .eq("userid", user.uid);
+      .select("team_id")
+      .eq("user_id", user.uid);
 
     if (error) {
       console.error("Error fetching user teams from Supabase:", error.message);
@@ -36,8 +34,8 @@ export const fetchUserTeams = async () => {
     // Fetch team details from Firebase based on team IDs
     const teamDetails = await Promise.all(
       data.map(async (team) => {
-        const teamData = await fetchTeamDetailsFromFirebase(team.teamid);
-        return { ...teamData, id: team.teamid };
+        const teamData = await fetchTeamDetailsFromFirebase(team.team_id);
+        return { ...teamData, id: team.team_id };
       })
     );
 
@@ -59,7 +57,7 @@ export const addUserToTeam = async (userId, teamId) => {
   try {
     const { error } = await supabase
       .from("user_teams")
-      .insert([{ userid: userId, teamid: teamId }]);
+      .insert([{ user_id: userId, team_id: teamId }]);
 
     if (error) {
       console.error("Error adding user to team:", error);

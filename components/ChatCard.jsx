@@ -11,8 +11,8 @@ import { Feather } from "@expo/vector-icons";
 import { Swipeable } from "react-native-gesture-handler";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { formatTime, getRoomId } from "../utils/common.js";
-import { listenToLatestMessages } from "@/service/MessageService";
-import { deleteChatRoom } from "@/service/RoomService.jsx";
+import { listenToLatestMessages } from "@/service/MessageServiceFirebase.jsx";
+import { deleteChatRoom } from "@/service/RoomServiceFirebase.jsx";
 
 export default function ChatCard({ item, router, currentUser }) {
   const [lastMessage, setLastMessage] = useState(undefined);

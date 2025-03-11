@@ -16,7 +16,7 @@ import { Button } from "react-native-paper";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../../context/AuthContext";
-import { updateUser, fetchInterests } from "@/service/UserService";
+import { updateUser, fetchInterests } from "@/service/UserServiceFirebase";
 
 const UserDetails = () => {
   const router = useRouter();

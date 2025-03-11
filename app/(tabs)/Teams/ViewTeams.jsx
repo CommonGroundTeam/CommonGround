@@ -9,7 +9,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import ViewTeamsHeader from "@/components/ViewTeamsHeader.jsx";
-import { fetchUserTeams } from "@/service/TeamServiceSupabase.jsx";
+import { fetchUserTeams } from "@/service/UserTeamServiceSupabase.jsx";
 import { useAuth } from "@/context/AuthContext";
 
 const ViewTeams = () => {

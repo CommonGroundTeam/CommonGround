@@ -15,6 +15,10 @@ export default function StackLayout() {
         name="JoinTeam"
         options={{ tabBarStyle: { display: "none" } }}
       />
+      <Stack.Screen
+        name="PendingTeamRequests"
+        options={{ tabBarStyle: { display: "none" } }}
+      />
     </Stack>
   );
 }

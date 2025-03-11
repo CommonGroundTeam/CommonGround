@@ -9,8 +9,9 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import BackArrowHeader from "@/components/BackArrowHeader.jsx";
 import { fetchTeamDetailsFromFirebase } from "@/service/TeamServiceFirebase";
-import { fetchUserById } from "@/service/UserService";
-import { fetchUserTeams } from "@/service/TeamServiceSupabase";
+import { fetchUserById } from "@/service/UserServiceFirebase";
+import { fetchUserTeams } from "@/service/UserTeamServiceSupabase";
+import { sendJoinRequest } from "../../../service/TeamRequestServiceSupabase";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { Feather } from "@expo/vector-icons";
 
@@ -30,6 +31,15 @@ const TeamDetails = () => {
       fetchTeamData();
     }
   }, [item]);
+
+  const handleJoinRequest = async () => {
+    try {
+      await sendJoinRequest(team.id, user.uid);
+      alert("Join request sent successfully!");
+    } catch (error) {
+      alert(error.message || "Failed to send join request.");
+    }
+  };
 
   const fetchTeamData = async () => {
     try {
@@ -103,6 +113,16 @@ const TeamDetails = () => {
               <TouchableOpacity onPress={() => alert("View members")}>
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/PendingTeamRequests",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
+                <Feather name="user-plus" size={24} color="white" />
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => alert("Share team")}>
                 <Feather name="send" size={24} color="white" />
               </TouchableOpacity>
@@ -127,11 +147,12 @@ const TeamDetails = () => {
               <TouchableOpacity onPress={() => alert("View Members")}>
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("Share team")}>
-                <Feather name="send" size={24} color="white" />
-              </TouchableOpacity>
+
               <TouchableOpacity onPress={() => alert("Leave Team")}>
                 <Feather name="log-out" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => alert("Share team")}>
+                <Feather name="send" size={24} color="white" />
               </TouchableOpacity>
             </>
           )}
@@ -139,7 +160,7 @@ const TeamDetails = () => {
           {/* Non-Member Buttons */}
           {!isMember && !isLeader && (
             <>
-              <TouchableOpacity onPress={() => alert("Request to Join")}>
+              <TouchableOpacity onPress={handleJoinRequest}>
                 <Feather name="user-check" size={24} color="white" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => alert("Share team")}>

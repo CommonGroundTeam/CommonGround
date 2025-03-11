@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
 import { getAuth } from "firebase/auth";
-import { getDescriptionByUserId, getUsernameByUserId, getProfilePictureByUserId } from "../../../service/UserService";
-import { fetchEventsByUser } from "../../../service/UserEventsSupaService";
-import { getEventNameById, getEventDateById, getEventLocationById, getEventDetailsById } from "../../../service/EventService"
+import {
+  getDescriptionByUserId,
+  getUsernameByUserId,
+  getProfilePictureByUserId,
+} from "@/service/UserServiceFirebase";
+import { fetchEventsByUser } from "@/service/UserEventsSupabaseService";
+import {
+  getEventNameById,
+  getEventDateById,
+  getEventLocationById,
+  getEventDetailsById,
+} from "@/service/EventServiceFirebase";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -16,15 +32,18 @@ const ProfilePage = () => {
   const friends = [
     {
       name: "Brandon",
-      profileImg: "https://ih1.redbubble.net/image.3234104650.5841/st,small,507x507-pad,600x600,f8f8f8.jpg",
+      profileImg:
+        "https://ih1.redbubble.net/image.3234104650.5841/st,small,507x507-pad,600x600,f8f8f8.jpg",
     },
     {
       name: "Shiru",
-      profileImg: "https://ih1.redbubble.net/image.3234104228.5826/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.jpg",
+      profileImg:
+        "https://ih1.redbubble.net/image.3234104228.5826/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.jpg",
     },
     {
       name: "Jon",
-      profileImg: "https://ih1.redbubble.net/image.3226609122.9303/st,large,507x507-pad,600x600,f8f8f8.jpg",
+      profileImg:
+        "https://ih1.redbubble.net/image.3226609122.9303/st,large,507x507-pad,600x600,f8f8f8.jpg",
     },
   ];
 
@@ -62,25 +81,31 @@ const ProfilePage = () => {
       try {
         const events = await fetchEventsByUser(currentUser.uid);
         console.log("Fetched events:", events);
-    
+
         if (!events || events.length === 0) {
           console.error("No events found for the user.");
           setUserEvents([]);
           return;
         }
-    
+
         const userEvents = await Promise.all(
           events.map(async (event) => {
             const id = event.event_id || "Unknown";
             console.log("Fetching details for event ID:", id);
-    
-            const name = id !== "Unknown" ? await getEventNameById(id) : "Unknown";
-            const rawDate = id !== "Unknown" ? await getEventDateById(id) : null;
+
+            const name =
+              id !== "Unknown" ? await getEventNameById(id) : "Unknown";
+            const rawDate =
+              id !== "Unknown" ? await getEventDateById(id) : null;
             const dateObj = rawDate ? rawDate.toDate() : null;
             const date = dateObj ? dateObj.toLocaleDateString() : "Unknown";
-            const location = id !== "Unknown" ? await getEventLocationById(id) : "Unknown";
-            const details = id !== "Unknown" ? await getEventDetailsById(id) : "No details provided";
-    
+            const location =
+              id !== "Unknown" ? await getEventLocationById(id) : "Unknown";
+            const details =
+              id !== "Unknown"
+                ? await getEventDetailsById(id)
+                : "No details provided";
+
             return {
               id,
               name,
@@ -91,16 +116,16 @@ const ProfilePage = () => {
             };
           })
         );
-    
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-    
+
         // Filter, sort, and slice the events
         const sortedEvents = userEvents
-          .filter(event => event.dateObj && event.dateObj >= today)
+          .filter((event) => event.dateObj && event.dateObj >= today)
           .sort((a, b) => a.dateObj - b.dateObj)
-          .slice(0, 3); 
-    
+          .slice(0, 3);
+
         setUserEvents(sortedEvents);
       } catch (error) {
         console.error("Error fetching user events:", error);
@@ -124,7 +149,9 @@ const ProfilePage = () => {
   if (!userData) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ fontSize: 18, color: "#333" }}>Unable to load user data.</Text>
+        <Text style={{ fontSize: 18, color: "#333" }}>
+          Unable to load user data.
+        </Text>
       </View>
     );
   }
@@ -172,7 +199,9 @@ const ProfilePage = () => {
       />
 
       {/* Username */}
-      <Text style={{ fontSize: 22, fontWeight: "bold", color: "#333" }}>@{userData.username}</Text>
+      <Text style={{ fontSize: 22, fontWeight: "bold", color: "#333" }}>
+        @{userData.username}
+      </Text>
 
       {/* User Description */}
       <Text
@@ -202,7 +231,14 @@ const ProfilePage = () => {
         }}
       >
         <TouchableOpacity onPress={() => router.push("/Profile/Events")}>
-          <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10, textAlign: "center" }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              marginBottom: 10,
+              textAlign: "center",
+            }}
+          >
             Upcoming Events
           </Text>
         </TouchableOpacity>
@@ -220,9 +256,15 @@ const ProfilePage = () => {
               elevation: 2,
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>{event.name}</Text>
-            <Text style={{ fontSize: 16, color: "#777", marginVertical: 5 }}>{event.location}</Text>
-            <Text style={{ fontSize: 16, color: "#444", marginVertical: 5 }}>{event.date}</Text>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>
+              {event.name}
+            </Text>
+            <Text style={{ fontSize: 16, color: "#777", marginVertical: 5 }}>
+              {event.location}
+            </Text>
+            <Text style={{ fontSize: 16, color: "#444", marginVertical: 5 }}>
+              {event.date}
+            </Text>
             <Text style={{ fontSize: 14, color: "#555" }}>{event.details}</Text>
           </View>
         ))}
@@ -256,7 +298,14 @@ const ProfilePage = () => {
         }}
       >
         <TouchableOpacity onPress={() => router.push("/Profile/FriendsList")}>
-          <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10, textAlign: "center" }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              marginBottom: 10,
+              textAlign: "center",
+            }}
+          >
             Friends
           </Text>
         </TouchableOpacity>
@@ -278,7 +327,12 @@ const ProfilePage = () => {
           >
             <Image
               source={{ uri: friend.profileImg }}
-              style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginRight: 10,
+              }}
             />
             <Text
               style={{
@@ -313,7 +367,11 @@ const ProfilePage = () => {
                   justifyContent: "center",
                   alignItems: "center",
                 }}
-                onPress={() => alert(`${friend.name} has been removed from your friends list.`)}
+                onPress={() =>
+                  alert(
+                    `${friend.name} has been removed from your friends list.`
+                  )
+                }
               >
                 <Icon name="trash" size={20} color="#fff" />
               </TouchableOpacity>

@@ -11,9 +11,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { fetchUserInterests } from "@/service/UserService";
-import { fetchInterests } from "@/service/InterestService";
-import { fetchFriendActivities } from "@/service/FriendService";
+import { fetchUserInterests } from "@/service/UserServiceFirebase";
+import { fetchInterests } from "@/service/InterestServiceFirebase";
+import { fetchFriendActivities } from "@/service/FriendServiceFirebase";
 
 const Home = () => {
   const router = useRouter();

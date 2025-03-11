@@ -12,9 +12,9 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
 import { Feather } from "react-native-vector-icons";
 import { useAuth } from "../../../context/AuthContext.jsx";
-import { fetchUserById } from "@/service/UserService";
-import { isFriend, removeFriend } from "@/service/FriendService";
-import { sendFriendRequest } from "@/service/FriendRequestService";
+import { fetchUserById } from "@/service/UserServiceFirebase";
+import { isFriend, removeFriend } from "@/service/FriendServiceFirebase";
+import { sendFriendRequest } from "@/service/FriendRequestServiceFirebase";
 
 const UserProfile = () => {
   const [targetUser, setTargetUser] = useState(null);

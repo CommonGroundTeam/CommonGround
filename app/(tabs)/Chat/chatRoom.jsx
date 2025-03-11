@@ -17,9 +17,12 @@ import { getRoomId } from "../../../utils/common.js";
 import {
   createRoomIfNotExists,
   fetchRoomMessages,
-} from "@/service/RoomService";
-import { sendMessage, listenForMessages } from "@/service/MessageService";
-import { getUsernameByUserId } from "@/service/UserService";
+} from "@/service/RoomServiceFirebase";
+import {
+  sendMessage,
+  listenForMessages,
+} from "@/service/MessageServiceFirebase";
+import { getUsernameByUserId } from "@/service/UserServiceFirebase";
 import MessageList from "../../../components/MessageList.jsx";
 
 const ios = Platform.OS === "ios";
