@@ -129,7 +129,7 @@ const Events = () => {
           shadowRadius: 4,
           alignSelf: "center",
         }}
-        onPress={() => router.push("/Profile/AddEvent")}
+        onPress={() => router.push("/Profile/AddEvents")}
       >
         <Icon name="plus" size={30} color="#fff" />
       </TouchableOpacity>

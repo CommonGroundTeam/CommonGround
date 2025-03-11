@@ -26,9 +26,9 @@ import {
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [userEvents, setUserEvents] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
   const friends = [
     {
       name: "Brandon",
@@ -81,7 +81,6 @@ const ProfilePage = () => {
       try {
         const events = await fetchEventsByUser(currentUser.uid);
         console.log("Fetched events:", events);
-
         if (!events || events.length === 0) {
           console.error("No events found for the user.");
           setUserEvents([]);
@@ -133,9 +132,50 @@ const ProfilePage = () => {
       }
     };
 
-    // Fetch both user data and events
+    const fetchFriends = async () => {
+      try {
+        const friendIds = await fetchFriendsWithDetails(currentUser.uid);
+
+        const friendDetails = await Promise.all(
+          friendIds.map(async (friend) => {
+            try {
+              const [username, description, profilePicture] = await Promise.all([
+                getUsernameByUserId(friend.userId),
+                getDescriptionByUserId(friend.userId),
+                getProfilePictureByUserId(friend.userId),
+              ]);
+
+              return {
+                userId: friend.userId,
+                name: username || "Unknown User",
+                profileImg: profilePicture || "https://via.placeholder.com/150",
+                description: description || "No description provided.",
+              };
+            } catch (error) {
+              console.error(`Failed to fetch details for user ${friend.userId}:`, error);
+              return {
+                userId: friend.userId,
+                name: "Error fetching user",
+                profileImg: "https://via.placeholder.com/150",
+                description: "No description available.",
+              };
+            }
+          })
+        );
+
+        setFriends(friendDetails.slice(0, 3));
+      } catch (error) {
+        console.error("Failed to fetch friends:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Fetch user data and friends
     fetchUserData();
     fetchUserEvents();
+    fetchFriends();
+
   }, []);
 
   if (loading) {
