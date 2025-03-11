@@ -1,11 +1,16 @@
-import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { fetchEventsByUser } from "../../../service/UserEventsSupaService"; // Service to fetch relationships from Supabase
-import { supabase } from "../../../supabaseClient"; // Supabase client
-import { getAuth } from "firebase/auth"; // Firebase Auth
-import { getFirestore, doc, getDoc } from "firebase/firestore"; // Firestore functions
+import { fetchEventsByUser } from "../../../service/UserEventsSupabaseService";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 const Events = () => {
   const router = useRouter();
@@ -43,7 +48,9 @@ const Events = () => {
           if (eventDoc.exists()) {
             return { id: eventDoc.id, ...eventDoc.data() };
           }
-          console.error(`Event with ID ${relation.event_id} not found in Firestore.`);
+          console.error(
+            `Event with ID ${relation.event_id} not found in Firestore.`
+          );
           return null;
         });
 
@@ -81,18 +88,29 @@ const Events = () => {
 
       {events.length > 0 ? (
         events.map((event, index) => (
-          <View key={index} className="mb-4 p-5 bg-gray-100 rounded-xl shadow-md w-full">
-            <Text className="text-xl font-bold text-gray-800">{event.name}</Text>
+          <View
+            key={index}
+            className="mb-4 p-5 bg-gray-100 rounded-xl shadow-md w-full"
+          >
+            <Text className="text-xl font-bold text-gray-800">
+              {event.name}
+            </Text>
             <Text className="text-lg text-gray-600 mt-2">{event.location}</Text>
             <Text className="text-lg text-gray-700 mt-1">
               {/* Convert Firestore Timestamp to a readable date */}
-              {event.date?.toDate ? event.date.toDate().toLocaleDateString() : "Unknown Date"}
+              {event.date?.toDate
+                ? event.date.toDate().toLocaleDateString()
+                : "Unknown Date"}
             </Text>
-            <Text className="text-base text-gray-500 mt-1">{event.details}</Text>
+            <Text className="text-base text-gray-500 mt-1">
+              {event.details}
+            </Text>
           </View>
         ))
       ) : (
-        <Text className="text-lg text-gray-500 mt-5">No events found for the current user.</Text>
+        <Text className="text-lg text-gray-500 mt-5">
+          No events found for the current user.
+        </Text>
       )}
 
       {/* Add Event Button */}

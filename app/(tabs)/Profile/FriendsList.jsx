@@ -1,12 +1,19 @@
-import { ScrollView, Text, View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { fetchFriendsWithDetails } from "../../../service/FriendService";
+import { fetchFriendsWithDetails } from "@/service/FriendServiceFirebase";
 import {
   getUsernameByUserId,
   getDescriptionByUserId,
   getProfilePictureByUserId,
-} from "../../../service/UserService";
+} from "@/service/UserServiceFirebase";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { FontAwesome5 } from "@expo/vector-icons";
 
@@ -40,11 +47,13 @@ const FriendsList = () => {
         const friendDetails = await Promise.all(
           friendIds.map(async (friend) => {
             try {
-              const [username, description, profilePicture] = await Promise.all([
-                getUsernameByUserId(friend.userId),
-                getDescriptionByUserId(friend.userId),
-                getProfilePictureByUserId(friend.userId),
-              ]);
+              const [username, description, profilePicture] = await Promise.all(
+                [
+                  getUsernameByUserId(friend.userId),
+                  getDescriptionByUserId(friend.userId),
+                  getProfilePictureByUserId(friend.userId),
+                ]
+              );
 
               return {
                 userId: friend.userId,
@@ -53,7 +62,10 @@ const FriendsList = () => {
                 description: description || "No description provided.",
               };
             } catch (error) {
-              console.error(`Failed to fetch details for user ${friend.userId}:`, error);
+              console.error(
+                `Failed to fetch details for user ${friend.userId}:`,
+                error
+              );
               return {
                 userId: friend.userId,
                 name: "Error fetching user",
@@ -94,8 +106,9 @@ const FriendsList = () => {
 
   return (
     <ScrollView className="flex-1 p-5 bg-white">
-      {/* Centered Friends List Header */}
-      <Text className="text-2xl font-bold text-gray-800 mb-5 text-center">Friends List</Text>
+      <Text className="text-2xl font-bold text-gray-800 mb-5">
+        Friends List
+      </Text>
 
       {friends.map((friend) => (
         <View
@@ -103,10 +116,17 @@ const FriendsList = () => {
           className="flex-row items-center justify-between mb-4 p-4 bg-white rounded-lg shadow-md"
         >
           <View className="flex-row items-center">
-            <Image source={{ uri: friend.profileImg }} className="w-12 h-12 rounded-full mr-4" />
+            <Image
+              source={{ uri: friend.profileImg }}
+              className="w-12 h-12 rounded-full mr-4"
+            />
             <View>
-              <Text className="text-lg font-bold text-gray-800">{friend.name}</Text>
-              <Text className="text-sm text-gray-600">{friend.description}</Text>
+              <Text className="text-lg font-bold text-gray-800">
+                {friend.name}
+              </Text>
+              <Text className="text-sm text-gray-600">
+                {friend.description}
+              </Text>
             </View>
           </View>
 

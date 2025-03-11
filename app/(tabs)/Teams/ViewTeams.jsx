@@ -6,24 +6,29 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-// import { fetchUserTeams } from "@/service/TeamService"; // Fetch teams from Firestore
+import ViewTeamsHeader from "@/components/ViewTeamsHeader.jsx";
+import { fetchUserTeams } from "@/service/UserTeamServiceSupabase.jsx";
+import { useAuth } from "@/context/AuthContext";
 
-const TeamsScreen = () => {
+const ViewTeams = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTeams();
-  }, []);
+    if (user) {
+      loadTeams();
+    }
+  }, [user]);
 
   const loadTeams = async () => {
+    setLoading(true);
     try {
-      // const userTeams = await fetchUserTeams(); // Fetch the teams
-      // setTeams(userTeams);
+      const userTeams = await fetchUserTeams();
+      setTeams(userTeams);
     } catch (error) {
       console.error("Error fetching teams:", error);
     } finally {
@@ -33,47 +38,56 @@ const TeamsScreen = () => {
 
   const renderTeam = ({ item }) => (
     <TouchableOpacity
-      style={{
-        padding: 15,
-        backgroundColor: "#FFE5D0", // Light orange background
-        borderRadius: 10,
-        marginVertical: 8,
-        marginHorizontal: 10,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 3,
-        elevation: 3, // Android shadow
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-      onPress={() => router.push(`/teams/${item.id}`)} // Navigate to team details
+      className="p-4 bg-orange-100 rounded-lg mx-4 my-2 flex-row justify-between items-center shadow"
+      onPress={() =>
+        router.push({
+          pathname: "/Teams/TeamDetails",
+          params: { item: JSON.stringify(item) },
+        })
+      }
     >
       <View>
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: "bold",
-            color: "#FF6100", // Dark orange
-          }}
-        >
-          {item.name}
-        </Text>
-        <Text style={{ fontSize: 14, color: "#444", marginTop: 5 }}>
-          {item.isLeader ? "Team Leader" : "Team Member"}
+        <Text className="text-lg font-bold text-orange-600">{item.name}</Text>
+        <Text className="text-sm text-gray-600">
+          {item.preferences.leader == user.uid ? "Leader" : "Member"}
         </Text>
       </View>
       <Feather name="chevron-right" size={20} color="#FF6100" />
     </TouchableOpacity>
   );
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff", padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
-        Your Teams
+  /** Footer Component for FlatList */
+  const renderFooter = () => (
+    <View className="mt-10 p-5 items-center bg-orange-50 rounded-lg mx-5">
+      <Text className="text-lg text-gray-600 text-center mb-4">
+        Create or join a team to connect with members and organize events.
       </Text>
 
+      <TouchableOpacity
+        className="bg-orange-500 p-3 rounded-full w-full mb-3"
+        onPress={() => router.push("/Teams/CreateTeam")}
+      >
+        <Text className="text-white font-bold text-center text-lg">
+          Create a Team
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        className="border border-orange-500 p-3 rounded-full w-full"
+        onPress={() => router.push("/Teams/JoinTeam")}
+      >
+        <Text className="text-orange-500 font-bold text-center text-lg">
+          Join a Team
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View className="flex-1 bg-white pb-20">
+      {/* Added padding-bottom */}
+      <ViewTeamsHeader />
+      <Text className="text-2xl font-bold my-5 mx-5">Your Teams</Text>
       {loading ? (
         <ActivityIndicator size="large" color="#FF6100" />
       ) : teams.length > 0 ? (
@@ -81,28 +95,18 @@ const TeamsScreen = () => {
           data={teams}
           renderItem={renderTeam}
           keyExtractor={(item) => item.id}
+          ListFooterComponent={renderFooter}
+          contentContainerStyle={{ paddingBottom: 100 }}
         />
       ) : (
-        <Text>No teams found.</Text>
+        /** No Teams Found Message **/
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-lg text-gray-500">No teams found.</Text>
+          {renderFooter()}
+        </View>
       )}
-
-      {/* Manage/Create Team Button */}
-      <TouchableOpacity
-        style={{
-          marginTop: 20,
-          padding: 15,
-          backgroundColor: "#FF6100",
-          borderRadius: 10,
-          alignItems: "center",
-        }}
-        onPress={() => router.push("/Teams/ManageTeams")}
-      >
-        <Text style={{ color: "white", fontWeight: "bold" }}>
-          Manage / Create Team
-        </Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 
-export default TeamsScreen;
+export default ViewTeams;

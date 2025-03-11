@@ -8,7 +8,15 @@ export default function StackLayout() {
         options={{ tabBarStyle: { display: "none" } }}
       />
       <Stack.Screen
-        name="ManageTeams"
+        name="CreateTeam"
+        options={{ tabBarStyle: { display: "none" } }}
+      />
+      <Stack.Screen
+        name="JoinTeam"
+        options={{ tabBarStyle: { display: "none" } }}
+      />
+      <Stack.Screen
+        name="PendingTeamRequests"
         options={{ tabBarStyle: { display: "none" } }}
       />
     </Stack>

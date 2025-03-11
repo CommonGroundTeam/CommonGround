@@ -5,9 +5,9 @@ import ChatList from "../../../components/ChatList.jsx";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { StatusBar } from "expo-status-bar";
 import { useAuth } from "@/context/AuthContext.jsx";
-import { listenToChatRoomsWithDetails } from "@/service/RoomService";
+import { listenToChatRoomsWithDetails } from "@/service/RoomServiceFirebase";
 import { router } from "expo-router";
-import { listenToLatestMessages } from "@/service/MessageService.jsx";
+import { listenToLatestMessages } from "@/service/MessageServiceFirebase.jsx";
 
 const ChatMenu = () => {
   const { user } = useAuth();

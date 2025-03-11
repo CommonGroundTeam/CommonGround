@@ -11,13 +11,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { fetchInterests } from "@/service/InterestService";
-import { fetchFriendActivities } from "@/service/FriendService";
+import { fetchUserInterests } from "@/service/UserServiceFirebase";
+import { fetchInterests } from "@/service/InterestServiceFirebase";
+import { fetchFriendActivities } from "@/service/FriendServiceFirebase";
 
 const Home = () => {
   const router = useRouter();
 
-  const [interests, setInterests] = useState([]);
+  const [currUserInterests, setCurrUserInterests] = useState([]);
   const [loadingInterests, setLoadingInterests] = useState(true);
   const [friendActivities, setFriendActivities] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,8 +28,8 @@ const Home = () => {
     // Fetch user interests
     const loadInterests = async () => {
       try {
-        const interestsList = await fetchInterests();
-        setInterests(interestsList);
+        const userInterests = await fetchUserInterests();
+        setCurrUserInterests(userInterests);
       } catch (error) {
         console.error("Error fetching interests:", error);
       } finally {
@@ -79,7 +80,7 @@ const Home = () => {
           color: "#FF6100", // Darker orange text color
         }}
       >
-        {item.name}
+        {item}
       </Text>
     </TouchableOpacity>
   );
@@ -179,9 +180,9 @@ const Home = () => {
           <ActivityIndicator size="small" color="#FF6100" />
         ) : (
           <FlatList
-            data={interests}
+            data={currUserInterests}
             renderItem={renderInterest}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item, index) => `${item}-${index}`}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: 10 }}

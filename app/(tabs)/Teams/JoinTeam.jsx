@@ -5,36 +5,44 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { fetchUsersByUsername } from "@/service/UserServiceFirebase";
-import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
-import { Feather } from "react-native-vector-icons";
+import { fetchTeamsByName } from "@/service/TeamServiceFirebase.jsx";
+import BackArrowHeader from "@/components/BackArrowHeader.jsx";
+import { Feather } from "@expo/vector-icons";
 
-const findUser = () => {
-  const [username, setUsername] = useState("");
+const JoinTeam = () => {
+  const [teamName, setTeamName] = useState("");
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const users = await fetchUsersByUsername(username);
-      setResults(users);
-    };
+    if (teamName) {
+      const fetchData = async () => {
+        setLoading(true);
+        const teams = await fetchTeamsByName(teamName);
+        setResults(teams);
+        setLoading(false);
+      };
 
-    fetchData();
-  }, [username]);
+      fetchData();
+    } else {
+      setResults([]);
+    }
+  }, [teamName]);
 
-  const openUserProfile = (item) => {
+  const openTeamProfile = (item) => {
     router.push({
-      pathname: "/Chat/userProfile",
+      pathname: "/Teams/TeamDetails",
       params: { item: JSON.stringify(item) },
     });
   };
 
-  const renderUserItem = (item, index) => (
+  const renderTeamItem = (item, index) => (
     <TouchableOpacity
-      onPress={() => openUserProfile(item)}
+      onPress={() => openTeamProfile(item)}
       key={item.id}
       style={{
         paddingVertical: 15,
@@ -49,12 +57,13 @@ const findUser = () => {
         justifyContent: "space-between",
       }}
     >
-      <Text style={{ fontSize: 16, color: "#333" }}>{item.username}</Text>
+      <Text style={{ fontSize: 16, color: "#333" }}>{item.name}</Text>
+      <Feather name="chevron-right" size={20} color="#FF6100" />
     </TouchableOpacity>
   );
 
   const clearSearch = () => {
-    setUsername("");
+    setTeamName("");
     setResults([]);
   };
 
@@ -76,9 +85,9 @@ const findUser = () => {
           }}
         >
           <TextInput
-            placeholder="Enter username"
-            value={username}
-            onChangeText={setUsername}
+            placeholder="Search for a team"
+            value={teamName}
+            onChangeText={setTeamName}
             style={{
               paddingVertical: 12,
               paddingHorizontal: 16,
@@ -89,7 +98,7 @@ const findUser = () => {
               textAlignVertical: "center",
             }}
           />
-          {username ? (
+          {teamName ? (
             <TouchableOpacity onPress={clearSearch}>
               <Feather name="x" size={24} color="#FF6100" />
             </TouchableOpacity>
@@ -106,17 +115,19 @@ const findUser = () => {
             paddingBottom: 10,
           }}
         >
-          {results.length > 0 ? (
-            results.map((item, index) => renderUserItem(item, index))
-          ) : (
+          {loading ? (
+            <ActivityIndicator size="small" color="#FF6100" />
+          ) : results.length > 0 ? (
+            results.map((item, index) => renderTeamItem(item, index))
+          ) : teamName ? (
             <View style={{ alignItems: "center", paddingVertical: 20 }}>
-              <Text>No users found</Text>
+              <Text>No teams found</Text>
             </View>
-          )}
+          ) : null}
         </View>
       </ScrollView>
     </View>
   );
 };
 
-export default findUser;
+export default JoinTeam;

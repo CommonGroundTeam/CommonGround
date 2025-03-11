@@ -8,22 +8,22 @@ import {
   RefreshControl,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useAuth } from "../../../context/AuthContext.jsx";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  fetchPendingFriendRequests,
-  updateFriendRequestStatus,
-  deleteFriendRequest,
-} from "@/service/FriendRequestServiceFirebase";
-import { addFriends } from "@/service/FriendServiceFirebase";
-import { createRoomIfNotExists } from "@/service/RoomServiceFirebase";
+  fetchPendingTeamRequests,
+  acceptTeamJoinRequest,
+  rejectTeamJoinRequest,
+} from "@/service/TeamRequestServiceSupabase";
+import { getUsernameByUserId } from "@/service/UserServiceFirebase";
 
-const PendingFriendRequests = () => {
-  const [friendRequests, setFriendRequests] = useState([]);
+const PendingTeamRequests = () => {
+  const [teamRequests, setTeamRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const { user } = useAuth();
+  const [usernames, setUsernames] = useState({});
+  const { teamId } = useLocalSearchParams();
   const router = useRouter();
 
   useEffect(() => {
@@ -33,10 +33,18 @@ const PendingFriendRequests = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const requests = await fetchPendingFriendRequests(user.uid);
-      setFriendRequests(requests);
+      const requests = await fetchPendingTeamRequests(teamId);
+      setTeamRequests(requests);
+
+      // Fetch usernames for each user request
+      const usernamesData = {};
+      for (const request of requests) {
+        const username = await getUsernameByUserId(request.user_id);
+        usernamesData[request.user_id] = username || "Unknown User";
+      }
+      setUsernames(usernamesData);
     } catch (error) {
-      console.error("Error fetching friend requests:", error);
+      console.error("Error fetching team requests:", error);
     } finally {
       setLoading(false);
     }
@@ -45,33 +53,36 @@ const PendingFriendRequests = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      const requests = await fetchPendingFriendRequests(user.uid);
-      setFriendRequests(requests);
+      const requests = await fetchPendingTeamRequests(teamId);
+      setTeamRequests(requests);
+
+      // Refresh usernames
+      const usernamesData = {};
+      for (const request of requests) {
+        const username = await getUsernameByUserId(request.user_id);
+        usernamesData[request.user_id] = username || "Unknown User";
+      }
+      setUsernames(usernamesData);
     } catch (error) {
-      console.error("Error refreshing friend requests:", error);
+      console.error("Error refreshing requests:", error);
     } finally {
       setRefreshing(false);
     }
   };
 
-  const handleFriendRequest = async (requestId, status, senderId) => {
+  const handleTeamRequest = async (requestId, status, userId) => {
     try {
       if (status === "accepted") {
-        await addFriends(user.uid, senderId);
-
-        const roomId = [user.uid, senderId].sort().join("-");
-        await createRoomIfNotExists(roomId, [user.uid, senderId]);
+        await acceptTeamJoinRequest(requestId, teamId, userId);
       } else if (status === "rejected") {
-        await deleteFriendRequest(requestId);
+        await rejectTeamJoinRequest(requestId);
       }
 
-      await updateFriendRequestStatus(requestId, status);
-
-      setFriendRequests((prev) =>
-        prev.filter((request) => request.id !== requestId)
+      setTeamRequests((prev) =>
+        prev.filter((req) => req.request_id !== requestId)
       );
     } catch (error) {
-      console.error(`Error handling friend request: ${error.message}`);
+      console.error(`Error handling team request: ${error.message}`);
     }
   };
 
@@ -86,10 +97,10 @@ const PendingFriendRequests = () => {
         borderBottomColor: "#ddd",
       }}
     >
-      {/* Request Info */}
-      <Text style={{ fontSize: 16 }}>{item.senderUsername}</Text>
+      <Text style={{ fontSize: 16 }}>
+        {usernames[item.user_id] || "Loading..."}
+      </Text>
 
-      {/* Accept & Reject Buttons */}
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
           style={{
@@ -99,7 +110,7 @@ const PendingFriendRequests = () => {
             marginRight: 10,
           }}
           onPress={() =>
-            handleFriendRequest(item.id, "accepted", item.senderId)
+            handleTeamRequest(item.request_id, "accepted", item.user_id)
           }
         >
           <Feather name="check" size={18} color="#fff" />
@@ -111,7 +122,7 @@ const PendingFriendRequests = () => {
             borderRadius: 5,
           }}
           onPress={() =>
-            handleFriendRequest(item.id, "rejected", item.senderId)
+            handleTeamRequest(item.request_id, "rejected", item.user_id)
           }
         >
           <Feather name="x" size={18} color="#fff" />
@@ -122,7 +133,7 @@ const PendingFriendRequests = () => {
 
   if (loading) {
     return (
-      <View
+      <SafeAreaView
         style={{
           flex: 1,
           justifyContent: "center",
@@ -132,7 +143,7 @@ const PendingFriendRequests = () => {
       >
         <BackArrowHeader />
         <ActivityIndicator size="large" color="#FF6100" />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -140,8 +151,8 @@ const PendingFriendRequests = () => {
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <BackArrowHeader />
       <FlatList
-        data={friendRequests}
-        keyExtractor={(item) => item.id}
+        data={teamRequests}
+        keyExtractor={(item) => `${item.id}-${item.user_id}`}
         renderItem={renderRequest}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -149,7 +160,7 @@ const PendingFriendRequests = () => {
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={
           <View style={{ padding: 20, alignItems: "center" }}>
-            <Text>No pending friend requests</Text>
+            <Text>No pending team requests</Text>
           </View>
         }
       />
@@ -157,4 +168,4 @@ const PendingFriendRequests = () => {
   );
 };
 
-export default PendingFriendRequests;
+export default PendingTeamRequests;

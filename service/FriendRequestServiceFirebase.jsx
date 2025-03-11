@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { FIRESTORE_DB } from "@/firebaseConfig";
 
-import { fetchUserById } from "@/service/UserService";
+import { fetchUserById } from "@/service/UserServiceFirebase";
 
 /**
  * Fetch pending friend requests for a user.

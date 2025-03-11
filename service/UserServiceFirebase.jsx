@@ -4,17 +4,15 @@ import {
   setDoc,
   Timestamp,
   query,
-  where,
   getDoc,
   getDocs,
   orderBy,
   startAt,
   endAt,
 } from "firebase/firestore";
-import { FIRESTORE_DB } from "../firebaseConfig.js"; // Your Firestore configuration
+import { FIRESTORE_DB } from "../firebaseConfig.js";
 import { getAuth } from "firebase/auth";
 
-// Define the users collection
 const usersCollection = collection(FIRESTORE_DB, "users");
 const interestsCollection = collection(FIRESTORE_DB, "interests");
 
@@ -207,5 +205,61 @@ export const getProfilePictureByUserId = async (userId) => {
   } catch (error) {
     console.error("Error fetching profile picture:", error);
     throw new Error("Could not retrieve profile picture.");
+  }
+};
+
+export const addTeamToUser = async (userId, teamId) => {
+  try {
+    const userDocRef = doc(usersCollection, userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      throw new Error("User not found.");
+    }
+
+    const userData = userDoc.data();
+    const updatedTeams = userData.teams
+      ? [...userData.teams, teamId]
+      : [teamId];
+
+    await setDoc(
+      userDocRef,
+      { teams: updatedTeams, updatedAt: Timestamp.now() },
+      { merge: true }
+    );
+
+    console.log(`Team ${teamId} added to user ${userId}`);
+  } catch (error) {
+    console.error("Error adding team to user:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches the interests of the currently authenticated user from Firestore.
+ * @returns {Promise<Array>} - List of user's interests or an empty array if none.
+ */
+export const fetchUserInterests = async () => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error("User not authenticated.");
+    }
+
+    const userDocRef = doc(collection(FIRESTORE_DB, "users"), user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.interests || [];
+    } else {
+      console.warn("User document not found.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching user interests:", error);
+    return [];
   }
 };
