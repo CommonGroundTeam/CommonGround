@@ -59,9 +59,12 @@ const ViewTeams = () => {
   /** Footer Component for FlatList */
   const renderFooter = () => (
     <View className="mt-10 p-5 items-center bg-orange-50 rounded-lg mx-5">
-      <Text className="text-lg text-gray-600 text-center mb-4">
-        Create or join a team to connect with members and organize events.
-      </Text>
+      {/* Show this message only if the user has no teams */}
+      {teams.length === 0 && (
+        <Text className="text-lg text-gray-600 text-center mb-4">
+          Create or join teams to connect with members and organize events.
+        </Text>
+      )}
 
       <TouchableOpacity
         className="bg-orange-500 p-3 rounded-full w-full mb-3"
