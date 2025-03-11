@@ -177,7 +177,7 @@ const FriendsList = () => {
           justifyContent: "center",
           width: "100%",
         }}
-        onPress={() => router.push("/Profile/AddFriend")}
+        onPress={() => router.push("/Chat/findUser")}
       >
         <Text className="text-white text-lg font-bold">Add Friend</Text>
       </TouchableOpacity>

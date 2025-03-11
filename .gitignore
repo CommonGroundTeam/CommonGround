@@ -45,3 +45,6 @@ utils/serverAddress.txt
 
 # superbase config
 supabaseConfig.js
+
+# google config
+googleConfig.js
