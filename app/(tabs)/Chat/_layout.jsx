@@ -3,17 +3,17 @@ import { Stack } from "expo-router";
 export default function StackLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="chatMenu" />
+      <Stack.Screen name="ChatMenu" />
       <Stack.Screen
-        name="findUser"
+        name="FindUser"
         options={{ tabBarStyle: { display: "none" } }}
       />
       <Stack.Screen
-        name="chatRoom"
+        name="ChatRoom"
         options={{ tabBarStyle: { display: "none" } }}
       />
       <Stack.Screen
-        name="pendingFriendRequests"
+        name="PendingFriendRequests"
         options={{ tabBarStyle: { display: "none" } }}
       />
     </Stack>
