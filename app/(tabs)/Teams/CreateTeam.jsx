@@ -10,22 +10,22 @@ import {
   Modal,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 
 import {
   createTeamInFirebase,
   checkIfTeamExists,
-  addTeamToUser,
+  addUserToTeamInFirebase,
 } from "@/service/TeamServiceFirebase";
-import { addUserToTeam } from "@/service/UserTeamServiceSupabase";
+import { addTeamToUserInFirebase } from "@/service/UserServiceFirebase";
+import { addUserToTeamInSupabase } from "@/service/UserTeamServiceSupabase";
 import { useAuth } from "@/context/AuthContext";
 import BackArrowHeader from "../../../components/BackArrowHeader";
 
 const singaporeRegions = ["Central", "North", "North-East", "East", "West"];
 const experienceLevels = ["Beginner", "Intermediate", "Advanced"];
-const teamVisibilities = ["Open to Everyone", "Invite Only"];
+const teamPrivacy = ["Open to Everyone", "Invite Only"];
 
 const CreateTeam = () => {
   const router = useRouter();
@@ -35,17 +35,15 @@ const CreateTeam = () => {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [experienceLevel, setExperienceLevel] = useState(experienceLevels[0]);
-  const [visibility, setVisibility] = useState(teamVisibilities[0]);
+  const [privacy, setPrivacy] = useState(teamPrivacy[0]);
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState(singaporeRegions[0]);
   const [profilePicture, setProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Picker States
   const [pickerType, setPickerType] = useState(null);
   const [selectedValue, setSelectedValue] = useState("");
 
-  // 📌 Handle Team Creation
   const handleSubmit = async () => {
     if (!teamName || !category || !description) {
       alert("Please fill in all required fields.");
@@ -55,7 +53,6 @@ const CreateTeam = () => {
     setLoading(true);
 
     try {
-      // **Check if the team name already exists**
       const teamExists = await checkIfTeamExists(teamName);
       if (teamExists) {
         alert("Team name is already taken. Please choose another.");
@@ -63,30 +60,27 @@ const CreateTeam = () => {
         return;
       }
 
-      // **Create the team in Firebase with leader info**
       const teamId = await createTeamInFirebase(
         teamName,
         category,
         description,
         {
           experienceLevel,
-          visibility,
+          privacy,
           tags,
           location,
           profilePicture,
-          createdBy: user.uid, // Mark creator
+          createdBy: user.uid,
         },
-        user.uid // Pass leader as user.uid
+        user.uid
       );
 
-      // **Store team-user mapping in Supabase**
-      await addUserToTeam(user.uid, teamId);
-
-      // **Update user's Firestore document with the new teamId**
-      await addTeamToUser(user.uid, teamId);
+      await addUserToTeamInSupabase(user.uid, teamId);
+      await addTeamToUserInFirebase(user.uid, teamId);
+      await addUserToTeamInFirebase(user.uid, teamId);
 
       alert(`Team "${teamName}" created successfully!`);
-      router.back(); // Navigate back to Teams list
+      router.back();
     } catch (error) {
       console.error("Error creating team:", error);
       alert("An error occurred while creating the team.");
@@ -95,7 +89,6 @@ const CreateTeam = () => {
     }
   };
 
-  // 📌 Handle Image Upload
   const pickImage = async () => {
     let permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -165,16 +158,15 @@ const CreateTeam = () => {
           <Text className="text-base text-gray-700">{experienceLevel}</Text>
         </TouchableOpacity>
 
-        {/* Visibility Picker */}
         <Text className="text-base font-semibold mb-1">Privacy Setting</Text>
         <TouchableOpacity
           className="border border-gray-300 p-3 rounded-lg mb-4"
           onPress={() => {
-            setPickerType("visibility");
-            setSelectedValue(visibility);
+            setPickerType("privacy");
+            setSelectedValue(privacy);
           }}
         >
-          <Text className="text-base text-gray-700">{visibility}</Text>
+          <Text className="text-base text-gray-700">{privacy}</Text>
         </TouchableOpacity>
 
         {/* Tags */}
@@ -215,7 +207,6 @@ const CreateTeam = () => {
           />
         )}
 
-        {/* Submit Button */}
         <TouchableOpacity
           className="bg-orange-500 p-4 rounded-lg items-center mb-5 mt-3"
           onPress={handleSubmit}
@@ -229,7 +220,6 @@ const CreateTeam = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Picker Modal with Orange Confirm Button */}
       <Modal visible={!!pickerType} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/50">
           <View className="bg-white p-5 rounded-t-lg">
@@ -239,8 +229,8 @@ const CreateTeam = () => {
             >
               {(pickerType === "experience"
                 ? experienceLevels
-                : pickerType === "visibility"
-                ? teamVisibilities
+                : pickerType === "privacy"
+                ? teamPrivacy
                 : singaporeRegions
               ).map((item) => (
                 <Picker.Item key={item} label={item} value={item} />
@@ -253,7 +243,7 @@ const CreateTeam = () => {
               onPress={() => {
                 if (pickerType === "experience")
                   setExperienceLevel(selectedValue);
-                if (pickerType === "visibility") setVisibility(selectedValue);
+                if (pickerType === "privacy") setPrivacy(selectedValue);
                 if (pickerType === "location") setLocation(selectedValue);
                 setPickerType(null);
               }}

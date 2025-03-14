@@ -12,7 +12,7 @@ export default function StackLayout() {
         options={{ tabBarStyle: { display: "none" } }}
       />
       <Stack.Screen
-        name="JoinTeam"
+        name="FindTeam"
         options={{ tabBarStyle: { display: "none" } }}
       />
       <Stack.Screen

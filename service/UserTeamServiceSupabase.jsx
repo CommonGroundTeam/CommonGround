@@ -53,7 +53,7 @@ export const fetchUserTeams = async () => {
  * @param {string} teamId - The ID of the team.
  * @returns {Promise<void>}
  */
-export const addUserToTeam = async (userId, teamId) => {
+export const addUserToTeamInSupabase = async (userId, teamId) => {
   try {
     const { error } = await supabase
       .from("user_teams")

@@ -9,11 +9,18 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import BackArrowHeader from "@/components/BackArrowHeader.jsx";
 import { fetchTeamDetailsFromFirebase } from "@/service/TeamServiceFirebase";
-import { fetchUserById } from "@/service/UserServiceFirebase";
-import { fetchUserTeams } from "@/service/UserTeamServiceSupabase";
-import { sendJoinRequest } from "../../../service/TeamRequestServiceSupabase";
+import {
+  fetchUserById,
+  addTeamToUserInFirebase,
+} from "@/service/UserServiceFirebase";
+import {
+  addUserToTeamInSupabase,
+  fetchUserTeams,
+} from "@/service/UserTeamServiceSupabase";
+import { sendJoinRequest } from "@/service/TeamRequestServiceSupabase";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { Feather } from "@expo/vector-icons";
+import { addUserToTeamInFirebase } from "@/service/TeamServiceFirebase";
 
 const TeamDetails = () => {
   const { item } = useLocalSearchParams();
@@ -34,10 +41,18 @@ const TeamDetails = () => {
 
   const handleJoinRequest = async () => {
     try {
-      await sendJoinRequest(team.id, user.uid);
-      alert("Join request sent successfully!");
+      if (team.preferences?.privacy !== "Invite Only") {
+        addUserToTeamInSupabase(user.uid, team.id);
+        addTeamToUserInFirebase(user.uid, team.id);
+        addUserToTeamInFirebase(user.uid, team.id);
+        alert("You have joined successfully!");
+      } else {
+        await sendJoinRequest(team.id, user.uid);
+        alert("Join request sent successfully!");
+      }
     } catch (error) {
       alert(error.message || "Failed to send join request.");
+      console.error("Failed to send join/send join request: ", error);
     }
   };
 
@@ -51,16 +66,13 @@ const TeamDetails = () => {
 
       setTeam(teamDetails);
 
-      // Fetch leader name
       if (teamDetails.preferences?.leader) {
         const leader = await fetchUserById(teamDetails.preferences.leader);
         setLeaderName(leader?.username || "Unknown Leader");
 
-        // Check if the user is the leader
         setIsLeader(user.uid === teamDetails.preferences.leader);
       }
 
-      // Check if user is a member of this team
       const userTeams = await fetchUserTeams();
       const isUserInTeam = userTeams.some((t) => t.id === parsedItem?.id);
       setIsMember(isUserInTeam);
@@ -183,7 +195,7 @@ const TeamDetails = () => {
             Privacy Setting
           </Text>
           <Text className="text-base text-gray-700 mb-3">
-            {team.preferences?.visibility}
+            {team.preferences?.privacy}
           </Text>
           <Text className="text-sm font-bold text-gray-700">Tags</Text>
           <Text className="text-base text-gray-700 mb-3">
