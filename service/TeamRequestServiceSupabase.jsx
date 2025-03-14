@@ -1,5 +1,7 @@
 import { supabase } from "@/supabaseClient";
-import { addUserToTeam } from "@/service/UserTeamServiceSupabase";
+import { addUserToTeamInSupabase } from "@/service/UserTeamServiceSupabase";
+import { addTeamToUserInFirebase } from "./UserServiceFirebase";
+import { addUserToTeamInFirebase } from "./TeamServiceFirebase";
 
 /**
  * Send a join request to a team
@@ -65,7 +67,9 @@ export const fetchPendingTeamRequests = async (teamId) => {
  */
 export const acceptTeamJoinRequest = async (requestId, teamId, userId) => {
   try {
-    await addUserToTeam(userId, teamId);
+    await addUserToTeamInSupabase(userId, teamId);
+    await addTeamToUserInFirebase(userId, teamId);
+    await addUserToTeamInFirebase(userId, teamId);
 
     const { error } = await supabase
       .from("team_requests")
@@ -73,8 +77,6 @@ export const acceptTeamJoinRequest = async (requestId, teamId, userId) => {
       .eq("request_id", requestId);
 
     if (error) throw error;
-
-    console.log("User added to team and request deleted successfully.");
   } catch (error) {
     console.error("Error accepting join request:", error);
     throw error;
@@ -93,8 +95,6 @@ export const rejectTeamJoinRequest = async (requestId) => {
       .eq("id", requestId);
 
     if (error) throw error;
-
-    console.log("Join request rejected.");
   } catch (error) {
     console.error("Error rejecting join request:", error);
     throw error;

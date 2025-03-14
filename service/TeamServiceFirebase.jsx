@@ -1,4 +1,5 @@
 import {
+  arrayUnion,
   collection,
   doc,
   setDoc,
@@ -67,38 +68,6 @@ export const createTeamInFirebase = async (
 };
 
 /**
- * Adds a team ID to a user's Firestore document.
- * @param {string} userId - The user's ID.
- * @param {string} teamId - The team's ID.
- */
-export const addTeamToUser = async (userId, teamId) => {
-  try {
-    const userDocRef = doc(FIRESTORE_DB, "users", userId); // ✅ Correct Firestore reference
-    const userDoc = await getDoc(userDocRef);
-
-    if (!userDoc.exists()) {
-      throw new Error("User not found.");
-    }
-
-    const userData = userDoc.data();
-    const updatedTeams = userData.teams
-      ? [...userData.teams, teamId]
-      : [teamId];
-
-    await setDoc(
-      userDocRef,
-      { teams: updatedTeams, updatedAt: Timestamp.now() }, // ✅ Fix Timestamp usage
-      { merge: true }
-    );
-
-    // console.log(`Team ${teamId} added to user ${userId}`);
-  } catch (error) {
-    console.error("Error adding team to user:", error);
-    throw error;
-  }
-};
-
-/**
  * Fetches team details from Firebase by team ID.
  * @param {string} teamId - The ID of the team.
  * @returns {Promise<Object>} - Team details.
@@ -145,5 +114,44 @@ export const fetchTeamsByName = async (teamName) => {
   } catch (error) {
     console.error("Error fetching teams by name:", error);
     return [];
+  }
+};
+
+/**
+ * Adds a user to the specified team in Firebase.
+ * Ensures that the user is added to the `members` array in the team document.
+ *
+ * @param {string} userId - The UID of the user.
+ * @param {string} teamId - The ID of the team.
+ * @returns {Promise<void>}
+ */
+export const addUserToTeamInFirebase = async (userId, teamId) => {
+  try {
+    if (!userId || !teamId) {
+      throw new Error("Both userId and teamId are required.");
+    }
+
+    // Reference to the team document in Firestore
+    const teamDocRef = doc(FIRESTORE_DB, "team", teamId);
+    const teamDoc = await getDoc(teamDocRef);
+
+    if (!teamDoc.exists()) {
+      throw new Error("Team not found.");
+    }
+
+    // Update the team document to include the user in the `members` array
+    await setDoc(
+      teamDocRef,
+      {
+        members: arrayUnion(userId),
+        updatedAt: Timestamp.now(),
+      },
+      { merge: true }
+    );
+
+    console.log(`User ${userId} added to team ${teamId} in Firebase.`);
+  } catch (error) {
+    console.error("Error adding user to team in Firebase:", error);
+    throw error;
   }
 };

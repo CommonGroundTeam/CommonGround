@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import ViewTeamsHeader from "@/components/ViewTeamsHeader.jsx";
-import { fetchUserTeams } from "@/service/UserTeamServiceSupabase.jsx";
+import { fetchUserTeamsFromFirebase } from "@/service/UserServiceFirebase.jsx";
 import { useAuth } from "@/context/AuthContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ViewTeams = () => {
   const router = useRouter();
@@ -18,16 +19,10 @@ const ViewTeams = () => {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      loadTeams();
-    }
-  }, [user]);
-
   const loadTeams = async () => {
     setLoading(true);
     try {
-      const userTeams = await fetchUserTeams();
+      const userTeams = await await fetchUserTeamsFromFirebase(user.uid);
       setTeams(userTeams);
     } catch (error) {
       console.error("Error fetching teams:", error);
@@ -35,6 +30,12 @@ const ViewTeams = () => {
       setLoading(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTeams();
+    }, [])
+  );
 
   const renderTeam = ({ item }) => (
     <TouchableOpacity
@@ -56,10 +57,9 @@ const ViewTeams = () => {
     </TouchableOpacity>
   );
 
-  /** Footer Component for FlatList */
   const renderFooter = () => (
     <View className="mt-10 p-5 items-center bg-orange-50 rounded-lg mx-5">
-      {/* Show this message only if the user has no teams */}
+      {/* Show message only if user has no teams */}
       {teams.length === 0 && (
         <Text className="text-lg text-gray-600 text-center mb-4">
           Create or join teams to connect with members and organize events.
@@ -77,7 +77,7 @@ const ViewTeams = () => {
 
       <TouchableOpacity
         className="border border-orange-500 p-3 rounded-full w-full"
-        onPress={() => router.push("/Teams/JoinTeam")}
+        onPress={() => router.push("/Teams/FindTeam")}
       >
         <Text className="text-orange-500 font-bold text-center text-lg">
           Join a Team

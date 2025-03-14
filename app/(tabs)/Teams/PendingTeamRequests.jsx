@@ -141,7 +141,6 @@ const PendingTeamRequests = () => {
           backgroundColor: "#fff",
         }}
       >
-        <BackArrowHeader />
         <ActivityIndicator size="large" color="#FF6100" />
       </SafeAreaView>
     );

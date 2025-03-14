@@ -9,6 +9,7 @@ import {
   orderBy,
   startAt,
   endAt,
+  teamsCollection,
 } from "firebase/firestore";
 import { FIRESTORE_DB } from "../firebaseConfig.js";
 import { getAuth } from "firebase/auth";
@@ -208,7 +209,7 @@ export const getProfilePictureByUserId = async (userId) => {
   }
 };
 
-export const addTeamToUser = async (userId, teamId) => {
+export const addTeamToUserInFirebase = async (userId, teamId) => {
   try {
     const userDocRef = doc(usersCollection, userId);
     const userDoc = await getDoc(userDocRef);
@@ -260,6 +261,44 @@ export const fetchUserInterests = async () => {
     }
   } catch (error) {
     console.error("Error fetching user interests:", error);
+    return [];
+  }
+};
+
+/**
+ * Fetches the teams associated with a user directly from Firestore.
+ * @param {string} userId - The UID of the authenticated user.
+ * @returns {Promise<Array>} - List of teams the user is part of.
+ */
+export const fetchUserTeamsFromFirebase = async (userId) => {
+  try {
+    if (!userId) throw new Error("User ID is required.");
+
+    // Reference to the user's document
+    const userDocRef = doc(FIRESTORE_DB, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      console.warn("User document not found.");
+      return [];
+    }
+
+    const userData = userDoc.data();
+    const teamIds = userData.teams || [];
+
+    if (teamIds.length === 0) return [];
+
+    // Fetch team details using the stored team IDs
+    const teamPromises = teamIds.map(async (teamId) => {
+      const teamDocRef = doc(FIRESTORE_DB, "team", teamId);
+      const teamDoc = await getDoc(teamDocRef);
+      return teamDoc.exists() ? { id: teamDoc.id, ...teamDoc.data() } : null;
+    });
+
+    const teams = await Promise.all(teamPromises);
+    return teams.filter(Boolean); // Remove null values for non-existent teams
+  } catch (error) {
+    console.error("Error fetching user teams from Firebase:", error);
     return [];
   }
 };
