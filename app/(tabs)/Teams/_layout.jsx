@@ -19,6 +19,10 @@ export default function StackLayout() {
         name="PendingTeamRequests"
         options={{ tabBarStyle: { display: "none" } }}
       />
+      <Stack.Screen
+        name="TeamDetails"
+        options={{ tabBarStyle: { display: "none" } }}
+      />
     </Stack>
   );
 }
