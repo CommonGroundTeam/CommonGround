@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
 import { Feather } from "react-native-vector-icons";
-import { useAuth } from "../../../context/AuthContext.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
 import { fetchUserById } from "@/service/UserServiceFirebase";
 import { isFriend, removeFriend } from "@/service/FriendServiceFirebase";
 import { sendFriendRequest } from "@/service/FriendRequestServiceFirebase";

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { fetchTeamsByName } from "@/service/TeamServiceFirebase.jsx";
-import BackArrowHeader from "@/components/BackArrowHeader.jsx";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
 import { Feather } from "@expo/vector-icons";
 
 const JoinTeam = () => {

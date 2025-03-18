@@ -10,7 +10,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { Swipeable } from "react-native-gesture-handler";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
-import { formatTime, getRoomId } from "../utils/common.js";
+import { formatTime, getRoomId } from "@/utils/common.js";
 import { listenToLatestMessages } from "@/service/MessageServiceFirebase.jsx";
 import { deleteChatRoom } from "@/service/RoomServiceFirebase.jsx";
 
@@ -108,7 +108,7 @@ export default function ChatCard({ item, router, currentUser }) {
       >
         {/* Profile Image */}
         <Image
-          source={require("../assets/icons/avatar.png")}
+          source={require("@/assets/icons/avatar.png")}
           style={{ height: hp(6), aspectRatio: 1 }}
           className="w-12 h-12 rounded-full mr-4"
         />

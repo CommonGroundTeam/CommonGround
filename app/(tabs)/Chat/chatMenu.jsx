@@ -1,7 +1,7 @@
 import { View, ActivityIndicator, Text } from "react-native";
 import React, { useEffect, useState } from "react";
-import ChatHeader from "../../../components/ChatHeader.jsx";
-import ChatList from "../../../components/ChatList.jsx";
+import ChatHeader from "@/components/chats/ChatHeader.jsx";
+import ChatList from "@/components/chats/ChatList.jsx";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { StatusBar } from "expo-status-bar";
 import { useAuth } from "@/context/AuthContext.jsx";

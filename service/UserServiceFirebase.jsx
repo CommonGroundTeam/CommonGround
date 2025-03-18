@@ -1,4 +1,5 @@
 import {
+  arrayRemove,
   collection,
   doc,
   setDoc,
@@ -9,7 +10,7 @@ import {
   orderBy,
   startAt,
   endAt,
-  teamsCollection,
+  updateDoc,
 } from "firebase/firestore";
 import { FIRESTORE_DB } from "../firebaseConfig.js";
 import { getAuth } from "firebase/auth";
@@ -42,11 +43,9 @@ export const updateUser = async (userData) => {
       },
       { merge: true }
     );
-
-    console.log("User created or updated successfully for UID:", userId);
   } catch (error) {
     console.error("Error creating/updating user:", error);
-    throw error; // Rethrow error for further handling
+    throw error;
   }
 };
 
@@ -300,5 +299,30 @@ export const fetchUserTeamsFromFirebase = async (userId) => {
   } catch (error) {
     console.error("Error fetching user teams from Firebase:", error);
     return [];
+  }
+};
+
+/**
+ * Removes a team from the user's teams array in Firestore.
+ * @param {string} userId - The ID of the user.
+ * @param {string} teamId - The ID of the team to remove.
+ */
+export const removeTeamFromUser = async (userId, teamId) => {
+  try {
+    const userDocRef = doc(FIRESTORE_DB, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      throw new Error(`User ${userId} not found.`);
+    }
+
+    await updateDoc(userDocRef, {
+      teams: arrayRemove(teamId),
+    });
+
+    console.log(`Team ${teamId} removed from user ${userId} in Firebase.`);
+  } catch (error) {
+    console.error("Error removing team from user:", error);
+    throw error;
   }
 };

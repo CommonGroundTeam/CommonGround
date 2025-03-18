@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import BackArrowHeader from "@/components/BackArrowHeader.jsx";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
 import { fetchTeamDetailsFromFirebase } from "@/service/TeamServiceFirebase";
 import {
   fetchUserById,
@@ -122,7 +122,14 @@ const TeamDetails = () => {
               <TouchableOpacity onPress={() => alert("Message Team")}>
                 <Feather name="message-circle" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("View members")}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/ViewMembers",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
               <TouchableOpacity
@@ -156,7 +163,14 @@ const TeamDetails = () => {
               <TouchableOpacity onPress={() => alert("Message Team")}>
                 <Feather name="message-circle" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("View Members")}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/ViewMembers",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
 

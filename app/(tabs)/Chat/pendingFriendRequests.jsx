@@ -8,9 +8,9 @@ import {
   RefreshControl,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useAuth } from "../../../context/AuthContext.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
 import { useRouter } from "expo-router";
-import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
 import {
   fetchPendingFriendRequests,
   updateFriendRequestStatus,

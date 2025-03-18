@@ -1,4 +1,5 @@
 import {
+  arrayRemove,
   arrayUnion,
   collection,
   doc,
@@ -8,7 +9,13 @@ import {
   query,
   where,
   Timestamp,
+  updateDoc,
 } from "firebase/firestore";
+import {
+  getUsernameByUserId,
+  removeTeamFromUser,
+} from "@/service/UserServiceFirebase";
+import { removeUserFromTeamInSupabase } from "./UserTeamServiceSupabase";
 import { FIRESTORE_DB } from "@/firebaseConfig";
 
 /**
@@ -68,9 +75,9 @@ export const createTeamInFirebase = async (
 };
 
 /**
- * Fetches team details from Firebase by team ID.
+ * Fetches team details and members from Firebase by team ID.
  * @param {string} teamId - The ID of the team.
- * @returns {Promise<Object>} - Team details.
+ * @returns {Promise<Object|null>} - Team details including members.
  */
 export const fetchTeamDetailsFromFirebase = async (teamId) => {
   try {
@@ -82,7 +89,22 @@ export const fetchTeamDetailsFromFirebase = async (teamId) => {
       return null;
     }
 
-    return { id: teamId, ...teamDoc.data() };
+    const teamData = teamDoc.data();
+
+    const members = teamData.members
+      ? await Promise.all(
+          teamData.members.map(async (memberId) => {
+            const username = await getUsernameByUserId(memberId);
+            return {
+              id: memberId,
+              username: username || "Unknown User",
+              role:
+                teamData.preferences?.leader === memberId ? "Leader" : "Member",
+            };
+          })
+        )
+      : [];
+    return { id: teamId, ...teamData, members };
   } catch (error) {
     console.error("Error fetching team details from Firebase:", error);
     return null;
@@ -152,6 +174,47 @@ export const addUserToTeamInFirebase = async (userId, teamId) => {
     console.log(`User ${userId} added to team ${teamId} in Firebase.`);
   } catch (error) {
     console.error("Error adding user to team in Firebase:", error);
+    throw error;
+  }
+};
+
+/**
+ * Removes a member from a team across Firebase and Supabase.
+ * @param {string} teamId - The ID of the team.
+ * @param {string} userId - The ID of the user to remove.
+ */
+export const removeMemberFromTeam = async (teamId, userId) => {
+  try {
+    // Get the team document from Firebase
+    const teamDocRef = doc(FIRESTORE_DB, "team", teamId);
+    const teamDoc = await getDoc(teamDocRef);
+
+    if (!teamDoc.exists()) {
+      throw new Error(`Team ${teamId} not found.`);
+    }
+
+    const teamData = teamDoc.data();
+
+    // Ensure user exists in members before proceeding
+    if (!teamData.members || !teamData.members.includes(userId)) {
+      throw new Error(`User ${userId} is not in team ${teamId}.`);
+    }
+
+    // 🔥 Remove the user from the team's "members" array in Firebase
+    await updateDoc(teamDocRef, {
+      members: arrayRemove(userId),
+    });
+
+    console.log(`✅ User ${userId} removed from team ${teamId} in Firebase.`);
+
+    await removeTeamFromUser(userId, teamId);
+
+    await removeUserFromTeamInSupabase(userId, teamId);
+    console.log(`✅ User ${userId} removed from team ${teamId} in Supabase.`);
+
+    return true;
+  } catch (error) {
+    console.error("❌ Error removing member from team:", error);
     throw error;
   }
 };

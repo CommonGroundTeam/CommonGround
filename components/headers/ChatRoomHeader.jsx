@@ -6,7 +6,7 @@ import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { Feather } from "react-native-vector-icons";
 import { TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { blurhash } from "../utils/common";
+import { blurhash } from "@/utils/common";
 
 const ChatHeader = ({ user, router }) => {
   const { top } = useSafeAreaInsets();

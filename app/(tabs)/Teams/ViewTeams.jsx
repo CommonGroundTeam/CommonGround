@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import ViewTeamsHeader from "@/components/ViewTeamsHeader.jsx";
+import ViewTeamsHeader from "@/components/headers/ViewTeamsHeader.jsx";
 import { fetchUserTeamsFromFirebase } from "@/service/UserServiceFirebase.jsx";
 import { useAuth } from "@/context/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
@@ -22,8 +22,13 @@ const ViewTeams = () => {
   const loadTeams = async () => {
     setLoading(true);
     try {
-      const userTeams = await await fetchUserTeamsFromFirebase(user.uid);
-      setTeams(userTeams);
+      const userTeams = await fetchUserTeamsFromFirebase(user.uid);
+
+      const sortedTeams = userTeams.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+      setTeams(sortedTeams);
     } catch (error) {
       console.error("Error fetching teams:", error);
     } finally {
