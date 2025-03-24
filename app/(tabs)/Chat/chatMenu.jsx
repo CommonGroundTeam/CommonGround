@@ -93,7 +93,7 @@ const ChatMenu = () => {
   }, [user?.uid]);
 
   const handleAddChat = () => {
-    router.push("/(tabs)/Chat/findUser");
+    router.push("/(tabs)/Chat/FindUser");
   };
 
   return (

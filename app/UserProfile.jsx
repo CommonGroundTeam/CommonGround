@@ -37,7 +37,6 @@ const UserProfile = () => {
       const userDetails = await fetchUserById(parsedItem?.userId);
       setTargetUser(userDetails);
 
-      // Check if the current user and target user are friends
       const friendStatus = await isFriend(user.uid, userDetails.userId);
       setIsFriendStatus(friendStatus);
     } catch (error) {
@@ -109,7 +108,7 @@ const UserProfile = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <BackArrowHeader />
       <ScrollView style={{ flex: 1 }}>
         <View style={{ padding: 20, alignItems: "center" }}>
@@ -118,7 +117,7 @@ const UserProfile = () => {
             source={
               targetUser?.profilePicture
                 ? { uri: targetUser?.profilePicture }
-                : require("../../../assets/icons/avatar.png")
+                : require("@/assets/icons/avatar.png")
             }
             style={{
               width: 100,
@@ -283,7 +282,7 @@ const UserProfile = () => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Animated,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { Swipeable } from "react-native-gesture-handler";
 import BackArrowHeader from "@/components/headers/BackArrowHeader";
 import {
   fetchTeamDetailsFromFirebase,
@@ -68,20 +70,61 @@ const ViewMembers = () => {
     );
   };
 
-  const renderMember = ({ item }) => (
-    <View className="p-4 bg-white rounded-lg mx-4 my-2 flex-row justify-between items-center shadow border border-gray-200">
-      <View>
-        <Text className="text-lg font-bold">{item.username}</Text>
-        <Text className="text-sm text-gray-600">{item.role}</Text>
-      </View>
+  const renderRightActions = (progress, dragX, memberId) => {
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0],
+      extrapolate: "clamp",
+    });
 
-      {/* Show remove button if user is the leader and the member is not themselves */}
-      {user.uid === leaderId && item.id !== user.uid && (
-        <TouchableOpacity onPress={() => handleRemoveMember(item.id)}>
-          <Feather name="user-x" size={24} color="red" />
-        </TouchableOpacity>
-      )}
-    </View>
+    return (
+      <TouchableOpacity
+        onPress={() => handleRemoveMember(memberId)}
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          width: 80,
+          backgroundColor: "#DC3545",
+        }}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <Feather name="user-x" size={24} color="white" />
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderMember = ({ item }) => (
+    <Swipeable
+      renderRightActions={(progress, dragX) =>
+        user.uid === leaderId && item.id !== user.uid
+          ? renderRightActions(progress, dragX, item.id)
+          : null
+      }
+      overshootRight={false}
+    >
+      <TouchableOpacity
+        className="flex-row items-center p-4 border-b border-gray-200"
+        onPress={() =>
+          router.push({
+            pathname: "/UserProfile",
+            params: { item: JSON.stringify({ userId: item.id }) },
+          })
+        }
+      >
+        <Feather
+          name="user"
+          size={24}
+          color="#FF6100"
+          style={{ marginRight: 10 }}
+        />
+        <Text className="text-lg font-bold text-gray-800 flex-1">
+          {item.username}
+        </Text>
+
+        <Text className="text-sm text-gray-500">{item.role}</Text>
+      </TouchableOpacity>
+    </Swipeable>
   );
 
   return (

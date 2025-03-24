@@ -27,7 +27,7 @@ const findUser = () => {
 
   const openUserProfile = (item) => {
     router.push({
-      pathname: "/Chat/userProfile",
+      pathname: "/UserProfile",
       params: { item: JSON.stringify(item) },
     });
   };

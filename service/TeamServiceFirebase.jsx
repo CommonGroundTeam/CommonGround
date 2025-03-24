@@ -185,7 +185,6 @@ export const addUserToTeamInFirebase = async (userId, teamId) => {
  */
 export const removeMemberFromTeam = async (teamId, userId) => {
   try {
-    // Get the team document from Firebase
     const teamDocRef = doc(FIRESTORE_DB, "team", teamId);
     const teamDoc = await getDoc(teamDocRef);
 
@@ -195,12 +194,10 @@ export const removeMemberFromTeam = async (teamId, userId) => {
 
     const teamData = teamDoc.data();
 
-    // Ensure user exists in members before proceeding
     if (!teamData.members || !teamData.members.includes(userId)) {
       throw new Error(`User ${userId} is not in team ${teamId}.`);
     }
 
-    // 🔥 Remove the user from the team's "members" array in Firebase
     await updateDoc(teamDocRef, {
       members: arrayRemove(userId),
     });
@@ -208,6 +205,7 @@ export const removeMemberFromTeam = async (teamId, userId) => {
     console.log(`✅ User ${userId} removed from team ${teamId} in Firebase.`);
 
     await removeTeamFromUser(userId, teamId);
+    console.log(`✅ Team ${teamId} removed from user ${userId} in Firebase.`);
 
     await removeUserFromTeamInSupabase(userId, teamId);
     console.log(`✅ User ${userId} removed from team ${teamId} in Supabase.`);

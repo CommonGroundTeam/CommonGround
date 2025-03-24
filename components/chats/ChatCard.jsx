@@ -25,7 +25,7 @@ export default function ChatCard({ item, router, currentUser }) {
 
   const openChatRoom = () => {
     router.push({
-      pathname: "/Chat/chatRoom",
+      pathname: "/(tabs)/Chat/ChatRoom",
       params: { item: JSON.stringify(item) },
     });
   };
@@ -86,7 +86,7 @@ export default function ChatCard({ item, router, currentUser }) {
           justifyContent: "center",
           alignItems: "center",
           width: 80,
-          backgroundColor: "#DC3545", // Red delete button color
+          backgroundColor: "#DC3545",
         }}
       >
         <Animated.View style={{ transform: [{ scale }] }}>
