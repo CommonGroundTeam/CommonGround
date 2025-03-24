@@ -21,7 +21,7 @@ import {
 import { addTeamToUserInFirebase } from "@/service/UserServiceFirebase";
 import { addUserToTeamInSupabase } from "@/service/UserTeamServiceSupabase";
 import { useAuth } from "@/context/AuthContext";
-import BackArrowHeader from "../../../components/BackArrowHeader";
+import BackArrowHeader from "@/components/headers/BackArrowHeader";
 
 const singaporeRegions = ["Central", "North", "North-East", "East", "West"];
 const experienceLevels = ["Beginner", "Intermediate", "Advanced"];

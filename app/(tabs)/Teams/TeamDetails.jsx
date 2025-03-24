@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+  Alert,
   View,
   Text,
   TouchableOpacity,
@@ -7,16 +8,17 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import BackArrowHeader from "@/components/BackArrowHeader.jsx";
-import { fetchTeamDetailsFromFirebase } from "@/service/TeamServiceFirebase";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
+import {
+  fetchTeamDetailsFromFirebase,
+  removeMemberFromTeam,
+} from "@/service/TeamServiceFirebase";
 import {
   fetchUserById,
   addTeamToUserInFirebase,
+  fetchUserTeamsFromFirebase,
 } from "@/service/UserServiceFirebase";
-import {
-  addUserToTeamInSupabase,
-  fetchUserTeams,
-} from "@/service/UserTeamServiceSupabase";
+import { addUserToTeamInSupabase } from "@/service/UserTeamServiceSupabase";
 import { sendJoinRequest } from "@/service/TeamRequestServiceSupabase";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { Feather } from "@expo/vector-icons";
@@ -73,7 +75,7 @@ const TeamDetails = () => {
         setIsLeader(user.uid === teamDetails.preferences.leader);
       }
 
-      const userTeams = await fetchUserTeams();
+      const userTeams = await fetchUserTeamsFromFirebase(user.uid);
       const isUserInTeam = userTeams.some((t) => t.id === parsedItem?.id);
       setIsMember(isUserInTeam);
     } catch (error) {
@@ -81,6 +83,30 @@ const TeamDetails = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLeaveTeam = async () => {
+    Alert.alert("Leave Team", "Are you sure you want to leave this team?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Leave",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await removeMemberFromTeam(team.id, user.uid);
+
+            setIsMember(false);
+
+            alert("You have left the team successfully.");
+
+            router.replace("/Teams/ViewTeams");
+          } catch (error) {
+            console.error("❌ Error leaving team:", error);
+            alert("Failed to leave the team.");
+          }
+        },
+      },
+    ]);
   };
 
   if (loading) {
@@ -122,7 +148,14 @@ const TeamDetails = () => {
               <TouchableOpacity onPress={() => alert("Message Team")}>
                 <Feather name="message-circle" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("View members")}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/ViewMembers",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
               <TouchableOpacity
@@ -156,11 +189,17 @@ const TeamDetails = () => {
               <TouchableOpacity onPress={() => alert("Message Team")}>
                 <Feather name="message-circle" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("View Members")}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/ViewMembers",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => alert("Leave Team")}>
+              <TouchableOpacity onPress={handleLeaveTeam}>
                 <Feather name="log-out" size={24} color="white" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => alert("Share team")}>

@@ -23,6 +23,10 @@ export default function StackLayout() {
         name="TeamDetails"
         options={{ tabBarStyle: { display: "none" } }}
       />
+      <Stack.Screen
+        name="ViewMembers"
+        options={{ tabBarStyle: { display: "none" } }}
+      />
     </Stack>
   );
 }
