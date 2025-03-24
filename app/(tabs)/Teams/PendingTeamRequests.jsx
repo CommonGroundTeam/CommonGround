@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   fetchPendingTeamRequests,

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { fetchUsersByUsername } from "@/service/UserServiceFirebase";
-import BackArrowHeader from "../../../components/BackArrowHeader.jsx";
+import BackArrowHeader from "@/components/headers/BackArrowHeader.jsx";
 import { Feather } from "react-native-vector-icons";
 
 const findUser = () => {
@@ -27,7 +27,7 @@ const findUser = () => {
 
   const openUserProfile = (item) => {
     router.push({
-      pathname: "/Chat/userProfile",
+      pathname: "/UserProfile",
       params: { item: JSON.stringify(item) },
     });
   };

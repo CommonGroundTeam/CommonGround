@@ -24,7 +24,7 @@ const ChatHeader = ({ onAddChat }) => {
     >
       {/* Pending Friend Requests Button */}
       <TouchableOpacity
-        onPress={() => router.push("/Chat/pendingFriendRequests")}
+        onPress={() => router.push("/Chat/PendingFriendRequests")}
         style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
       >
         <Feather name="user-check" size={24} color="#FF6100" />

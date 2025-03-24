@@ -10,10 +10,10 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
-import ChatRoomHeader from "../../../components/ChatRoomHeader.jsx";
-import CustomKeyboardView from "../../../components/CustomKeyboardView.jsx";
-import { useAuth } from "../../../context/AuthContext.jsx";
-import { getRoomId } from "../../../utils/common.js";
+import ChatRoomHeader from "@/components/headers/ChatRoomHeader.jsx";
+import CustomKeyboardView from "@/components/CustomKeyboardView.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
+import { getRoomId } from "@/utils/common.js";
 import {
   createRoomIfNotExists,
   fetchRoomMessages,
@@ -23,7 +23,7 @@ import {
   listenForMessages,
 } from "@/service/MessageServiceFirebase";
 import { getUsernameByUserId } from "@/service/UserServiceFirebase";
-import MessageList from "../../../components/MessageList.jsx";
+import MessageList from "../../../components/messages/MessageList.jsx";
 
 const ios = Platform.OS === "ios";
 
