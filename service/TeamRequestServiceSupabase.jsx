@@ -34,7 +34,8 @@ export const sendJoinRequest = async (teamId, userId) => {
       throw error;
     }
   } catch (error) {
-    console.error("Error sending join request:", error);
+    alert(error.message);
+    // console.error("Error sending join request:", error);
     throw error;
   }
 };
@@ -98,5 +99,25 @@ export const rejectTeamJoinRequest = async (requestId) => {
   } catch (error) {
     console.error("Error rejecting join request:", error);
     throw error;
+  }
+};
+
+/**
+ * Gets the number of pending join requests for a team.
+ * @param {string} teamId
+ * @returns {Promise<number>}
+ */
+export const getJoinRequestCount = async (teamId) => {
+  try {
+    const { count, error } = await supabase
+      .from("team_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("team_id", teamId);
+
+    if (error) throw error;
+    return count ?? 0;
+  } catch (error) {
+    console.error("Error fetching join request count:", error);
+    return 0;
   }
 };
