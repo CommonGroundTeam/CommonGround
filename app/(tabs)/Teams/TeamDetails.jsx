@@ -19,7 +19,10 @@ import {
   fetchUserTeamsFromFirebase,
 } from "@/service/UserServiceFirebase";
 import { addUserToTeamInSupabase } from "@/service/UserTeamServiceSupabase";
-import { sendJoinRequest } from "@/service/TeamRequestServiceSupabase";
+import {
+  sendJoinRequest,
+  getJoinRequestCount,
+} from "@/service/TeamRequestServiceSupabase";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { Feather } from "@expo/vector-icons";
 import { addUserToTeamInFirebase } from "@/service/TeamServiceFirebase";
@@ -34,6 +37,7 @@ const TeamDetails = () => {
   const [leaderName, setLeaderName] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const [isLeader, setIsLeader] = useState(false);
+  const [joinRequestCount, setJoinRequestCount] = useState(0);
 
   useEffect(() => {
     if (item) {
@@ -42,19 +46,14 @@ const TeamDetails = () => {
   }, [item]);
 
   const handleJoinRequest = async () => {
-    try {
-      if (team.preferences?.privacy !== "Invite Only") {
-        addUserToTeamInSupabase(user.uid, team.id);
-        addTeamToUserInFirebase(user.uid, team.id);
-        addUserToTeamInFirebase(user.uid, team.id);
-        alert("You have joined successfully!");
-      } else {
-        await sendJoinRequest(team.id, user.uid);
-        alert("Join request sent successfully!");
-      }
-    } catch (error) {
-      alert(error.message || "Failed to send join request.");
-      console.error("Failed to send join/send join request: ", error);
+    if (team.preferences?.privacy !== "Invite Only") {
+      addUserToTeamInSupabase(user.uid, team.id);
+      addTeamToUserInFirebase(user.uid, team.id);
+      addUserToTeamInFirebase(user.uid, team.id);
+      alert("You have joined successfully!");
+    } else {
+      await sendJoinRequest(team.id, user.uid);
+      alert("Join request sent successfully!");
     }
   };
 
@@ -67,6 +66,11 @@ const TeamDetails = () => {
       }
 
       setTeam(teamDetails);
+
+      if (user.uid === teamDetails.preferences.leader) {
+        const count = await getJoinRequestCount(teamDetails.id);
+        setJoinRequestCount(count);
+      }
 
       if (teamDetails.preferences?.leader) {
         const leader = await fetchUserById(teamDetails.preferences.leader);
@@ -145,9 +149,9 @@ const TeamDetails = () => {
           {/* Leader Buttons */}
           {isLeader && (
             <>
-              <TouchableOpacity onPress={() => alert("Message Team")}>
+              {/* <TouchableOpacity onPress={() => alert("Message Team")}>
                 <Feather name="message-circle" size={24} color="white" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() =>
                   router.push({
@@ -167,9 +171,42 @@ const TeamDetails = () => {
                 }
               >
                 <Feather name="user-plus" size={24} color="white" />
+                {joinRequestCount > 0 && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -6,
+                      right: -6,
+                      backgroundColor: "red",
+                      borderRadius: 10,
+                      paddingHorizontal: 4,
+                      paddingVertical: 1,
+                      minWidth: 18,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 10,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {joinRequestCount > 9 ? "9+" : joinRequestCount}
+                    </Text>
+                  </View>
+                )}
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("Share team")}>
-                <Feather name="send" size={24} color="white" />
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/AddEvent",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
+                <Feather name="calendar" size={24} color="white" />
               </TouchableOpacity>
               {/* <TouchableOpacity onPress={() => alert("Manage roles")}>
                 <Feather name="settings" size={24} color="white" />
@@ -186,9 +223,9 @@ const TeamDetails = () => {
           {/* Member Buttons */}
           {isMember && !isLeader && (
             <>
-              <TouchableOpacity onPress={() => alert("Message Team")}>
+              {/* <TouchableOpacity onPress={() => alert("Message Team")}>
                 <Feather name="message-circle" size={24} color="white" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() =>
                   router.push({
@@ -199,11 +236,18 @@ const TeamDetails = () => {
               >
                 <Feather name="users" size={24} color="white" />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/Teams/AddEvent",
+                    params: { teamId: team.id },
+                  })
+                }
+              >
+                <Feather name="calendar" size={24} color="white" />
+              </TouchableOpacity>
               <TouchableOpacity onPress={handleLeaveTeam}>
                 <Feather name="log-out" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("Share team")}>
-                <Feather name="send" size={24} color="white" />
               </TouchableOpacity>
             </>
           )}
@@ -213,9 +257,6 @@ const TeamDetails = () => {
             <>
               <TouchableOpacity onPress={handleJoinRequest}>
                 <Feather name="user-check" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert("Share team")}>
-                <Feather name="send" size={24} color="white" />
               </TouchableOpacity>
             </>
           )}
